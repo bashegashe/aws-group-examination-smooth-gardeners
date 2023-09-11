@@ -25,31 +25,31 @@ custom:
     webpackConfig: 'webpack.config.cjs'
 
 functions:
-  function1:
+  getBooking:
     handler: src/functions/getBooking.handler
     events:
       - httpApi:
           path: '/api/booking'
           method: GET
-  function1:
+  getBookings:
     handler: src/functions/getBookings.handler
     events:
       - httpApi:
           path: '/api/bookings'
           method: GET
-  function1:
+  postBooking:
     handler: src/functions/postBooking.handler
     events:
       - httpApi:
           path: '/api/booking'
           method: POST
-  function1:
+  updateBooking:
     handler: src/functions/updateBooking.handler
     events:
       - httpApi:
           path: '/api/booking'
           method: PATCH
-  function1:
+  deleteBooking:
     handler: src/functions/deleteBooking.handler
     events:
       - httpApi:
