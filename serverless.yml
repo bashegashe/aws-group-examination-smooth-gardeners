@@ -58,7 +58,7 @@ functions:
 
 resources:
   Resources:
-    todoDb:
+    BonzaiDatabase:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:provider.environment.TABLE_NAME}
@@ -67,9 +67,21 @@ resources:
             AttributeType: S
           - AttributeName: SK
             AttributeType: S
+          - AttributeName: StartDate
+            AttributeType: S
+          - AttributeName: EndDate
         KeySchema:
           - AttributeName: PK
             KeyType: HASH
           - AttributeName: SK
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: GSI1
+            KeySchema:
+              - AttributeName: StartDate
+                KeyType: HASH
+              - AttributeName: EndDate
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
