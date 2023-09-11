@@ -70,6 +70,7 @@ resources:
           - AttributeName: StartDate
             AttributeType: S
           - AttributeName: EndDate
+            AttributeType: S
         KeySchema:
           - AttributeName: PK
             KeyType: HASH
