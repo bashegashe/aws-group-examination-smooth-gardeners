@@ -1,0 +1,75 @@
+service: aws-gruppexamination-smooth-gardeners
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  profile: ${env:PROFILE}
+  region: eu-north-1
+  iam:
+    role: ${env:LAMBDA_ROLE}
+  deploymentMethod: direct
+  environment:
+    TABLE_NAME: bookings
+
+useDotenv: true
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+custom:
+  webpack:
+    webpackConfig: 'webpack.config.cjs'
+
+functions:
+  function1:
+    handler: src/functions/getBooking.handler
+    events:
+      - httpApi:
+          path: '/api/booking'
+          method: GET
+  function1:
+    handler: src/functions/getBookings.handler
+    events:
+      - httpApi:
+          path: '/api/bookings'
+          method: GET
+  function1:
+    handler: src/functions/postBooking.handler
+    events:
+      - httpApi:
+          path: '/api/booking'
+          method: POST
+  function1:
+    handler: src/functions/updateBooking.handler
+    events:
+      - httpApi:
+          path: '/api/booking'
+          method: PATCH
+  function1:
+    handler: src/functions/deleteBooking.handler
+    events:
+      - httpApi:
+          path: '/api/booking'
+          method: DELETE
+
+resources:
+  Resources:
+    todoDb:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TABLE_NAME}
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+          - AttributeName: SK
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: SK
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST

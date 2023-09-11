@@ -1,0 +1,6 @@
+{
+  "javascript.preferences.importModuleSpecifierEnding": "js",
+  "javascript.preferences.quoteStyle": "single",
+  "prettier.enable": true,
+  "editor.formatOnSave": true,
+}

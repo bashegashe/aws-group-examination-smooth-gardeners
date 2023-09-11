@@ -1,0 +1,16 @@
+{
+  "name": "aws-group-examination-smooth-gardeners",
+  "version": "1.0.0",
+  "description": "AWS Gruppexamination — Smooth Gardeners",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "serverless-webpack": "^5.13.0"
+  }
+}
