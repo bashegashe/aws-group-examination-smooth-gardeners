@@ -12,5 +12,8 @@
   "license": "ISC",
   "devDependencies": {
     "serverless-webpack": "^5.13.0"
+  },
+  "dependencies": {
+    "joi": "^17.10.1"
   }
 }
