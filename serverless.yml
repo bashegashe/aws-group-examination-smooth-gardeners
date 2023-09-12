@@ -25,12 +25,6 @@ custom:
     webpackConfig: 'webpack.config.cjs'
 
 functions:
-  getBooking:
-    handler: src/functions/getBooking.handler
-    events:
-      - httpApi:
-          path: '/api/booking'
-          method: GET
   getBookings:
     handler: src/functions/getBookings.handler
     events:
