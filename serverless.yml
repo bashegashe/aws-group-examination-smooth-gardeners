@@ -47,7 +47,7 @@ functions:
     handler: src/functions/deleteBooking.handler
     events:
       - httpApi:
-          path: '/api/booking'
+          path: '/api/booking/{bookingId}'
           method: DELETE
 
 resources:
