@@ -49,3 +49,18 @@ export function calculateBookingTotalPrice(booking) {
     0
   );
 }
+
+export function createBookingResponse(booking) {
+  return {
+    id: booking.PK,
+    name: booking.name,
+    email: booking.email,
+    rooms: calculateBookingTotalRooms(booking),
+    guests: booking.guests,
+    dates: {
+      checkIn: booking.startDate,
+      checkOut: booking.endDate
+    },
+    totalPrice: calculateBookingTotalPrice(booking)
+  }
+}
