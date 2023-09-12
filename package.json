@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "aws-sdk": "^2.1455.0",
     "serverless-webpack": "^5.13.0"
   },
   "dependencies": {
