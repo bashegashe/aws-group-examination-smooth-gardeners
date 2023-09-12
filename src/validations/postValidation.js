@@ -1,9 +1,10 @@
 import Joi from 'joi'
+import dayjs from 'dayjs';
 
 const roomSchema = Joi.object({
-  single: Joi.number().integer().min(0),
-  double: Joi.number().integer().min(0),
-  suite: Joi.number().integer().min(0),
+  single: Joi.number().integer().min(1),
+  double: Joi.number().integer().min(1),
+  suite: Joi.number().integer().min(1),
 })
   .or('single', 'double', 'suite')
   .required();
@@ -11,8 +12,14 @@ const roomSchema = Joi.object({
 const mainSchema = Joi.object({
   guests: Joi.number().integer().min(1).required(),
   rooms: roomSchema,
-  startDate: Joi.date().iso().required(),
-  endDate: Joi.date().iso().min(Joi.ref('startDate')).required(),
+  startDate: Joi.date()
+    .iso()
+    .min(dayjs().format('YYYY-MM-DD'))
+    .required(),
+  endDate: Joi.date()
+    .iso()
+    .greater(Joi.ref('startDate'))
+    .required(),
   name: Joi.string().required(),
   email: Joi.string().email().required(),
 }).required()

@@ -69,8 +69,6 @@ resources:
             AttributeType: S
           - AttributeName: startDate
             AttributeType: S
-          - AttributeName: endDate
-            AttributeType: S
         KeySchema:
           - AttributeName: PK
             KeyType: HASH
@@ -80,9 +78,9 @@ resources:
         GlobalSecondaryIndexes:
           - IndexName: GSI1
             KeySchema:
-              - AttributeName: startDate
+              - AttributeName: SK
                 KeyType: HASH
-              - AttributeName: endDate
+              - AttributeName: startDate
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL

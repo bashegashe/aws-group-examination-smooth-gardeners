@@ -1,29 +1,51 @@
 import { db } from './db.js';
-import { MAX_ROOMS } from '../misc/constants.js';
+import { MAX_ROOMS, ROOMS } from '../misc/constants.js';
+import dayjs from 'dayjs';
 
-function sumTotalRooms(bookings) {
-  return bookings.reduce((acc, booking) => acc + booking.totalRooms, 0);
-}
+export async function validateBookingDates(newBooking) {
+  const { startDate, endDate, roomsNeeded } = newBooking;
 
-export async function getAvailableRooms(startDate, endDate) {
   const params = {
     TableName: process.env.TABLE_NAME,
-    IndexName: "GSI1",
-    KeyConditionExpression: '#pk = :pk AND #sk <= :endDate',
-    ExpressionAttributeNames: {
-      '#pk': 'pk',
-      '#sk': 'sk'
-    },
+    IndexName: 'GSI1',
+    KeyConditionExpression: 'SK = :sk AND startDate <= :end',
+    FilterExpression: 'endDate >= :start',
     ExpressionAttributeValues: {
-      ':pk': startDate,
-      ':endDate': endDate
+      ":sk": "BOOKINGS#META",
+      ":start": startDate,
+      ":end": endDate
     }
   }
 
-  const { Items: bookings } = await db.query(params).promise();
+  const { Items: intersectingBookings } = await db.query(params).promise();
 
-  const bookedRooms = sumTotalRooms(bookings);
-  const availableRooms = MAX_ROOMS - bookedRooms;
+  const bookedRooms = intersectingBookings.reduce((acc, booking) => {
+    if (!dayjs(startDate).isSame(dayjs(booking.endDate))) {
+      return acc + calculateBookingTotalRooms(booking);
+    }
+    return acc;
+  }, 0);
 
-  return availableRooms;
+
+  if (bookedRooms + roomsNeeded > MAX_ROOMS) {
+    throw new Error('Not enough rooms for the selected period!');
+  }
+}
+
+
+export function calculateBookingTotalRooms(booking) {
+  return Object.keys(booking.rooms).reduce(
+    (acc, key) => acc + booking.rooms[key],
+    0
+  );
+}
+
+export function calculateBookingTotalPrice(booking) {
+  const numberOfDays = dayjs(booking.endDate).diff(booking.startDate, 'd');
+
+  return Object.keys(booking.rooms).reduce(
+    (acc, key) =>
+      acc + ROOMS[key.toUpperCase()].PRICE * booking.rooms[key] * numberOfDays,
+    0
+  );
 }

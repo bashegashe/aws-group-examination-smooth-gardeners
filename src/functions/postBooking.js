@@ -1,21 +1,56 @@
 import { db } from '../services/db.js'
 import validatePost from '../validations/postValidation.js'
 import { sendResponse } from '../responses/index.js'
-import { getAvailableRooms } from '../services/bookings.js'
+import { validateBookingDates } from '../services/bookings.js'
+import { calculateBookingTotalPrice, calculateBookingTotalRooms } from '../services/bookings.js'
+import { nanoid } from 'nanoid'
 
 export const handler = async (event) => {
   try {
-    const body = JSON.parse(event.body)
+    const booking = JSON.parse(event.body)
 
-    await validatePost(body)
+    await validatePost(booking)
 
-    const { guests, rooms, startDate, endDate, name, email } = body
+    const { guests, rooms, startDate, endDate, name, email } = booking
 
-    const availableRooms = await getAvailableRooms(startDate, endDate)
+    const roomsNeeded = calculateBookingTotalRooms(booking)
 
-    return sendResponse(200, { success: true, availableRooms })
+    await validateBookingDates({ startDate, endDate, roomsNeeded })
+
+    const bookingId = nanoid()
+
+    const item = {
+      guests,
+      rooms,
+      startDate,
+      endDate,
+      name,
+      email
+    }
+
+    const params = {
+      TableName: process.env.TABLE_NAME,
+      Item: {
+        ...item,
+        PK: `BOOKING#${bookingId}`,
+        SK: `BOOKINGS#META`,
+      },
+      ConditionExpression: 'attribute_not_exists(PK)',
+    }
+
+    await db.put(params).promise()
+
+    const totalPrice = calculateBookingTotalPrice(booking)
+
+    const response = {
+      ...item,
+      bookingId,
+      totalPrice
+    }
+
+    return sendResponse(200, { success: true, booking: response })
   } catch (error) {
-    const message = error.details.message || error.message || 'Something went wrong'
+    const message = error?.details?.message || error?.message || 'Something went wrong'
     return sendResponse(400, { error: message })
   }
 }
