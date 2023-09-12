@@ -52,7 +52,7 @@ export function calculateBookingTotalPrice(booking) {
 
 export function createBookingResponse(booking) {
   return {
-    id: booking.PK,
+    id: booking.PK.replace('BOOKING#', ''),
     name: booking.name,
     email: booking.email,
     rooms: calculateBookingTotalRooms(booking),
