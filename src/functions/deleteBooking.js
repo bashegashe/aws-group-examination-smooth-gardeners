@@ -1,7 +1,6 @@
 import { db } from '../services/db.js'
 import { sendResponse } from '../responses/index.js'
-import dayjs from 'dayjs'
-import { createBookingResponse } from '../services/bookings.js'
+import { createBookingResponse, validateCancellation } from '../services/bookings.js'
 
 export const handler = async (event) => {
   try {
@@ -19,11 +18,7 @@ export const handler = async (event) => {
       throw new Error('Booking not found');
     }
 
-    const daysBefore = dayjs(booking.startDate).subtract(1, 'd');
-
-    if (!dayjs().isBefore(daysBefore)) {
-      throw new Error('Booking cannot be cancelled less than 2 days before arrival'); s
-    }
+    validateCancellation(booking);
 
     await db.delete(params).promise();
 

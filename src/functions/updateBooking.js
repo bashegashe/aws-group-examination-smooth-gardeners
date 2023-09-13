@@ -1,17 +1,19 @@
 import { db } from '../services/db.js'
 import { validateUpdate } from '../validations/postValidation.js'
 import { sendResponse } from '../responses/index.js'
-import { validateBooking, createBookingResponse, createBookingItem, getBooking } from '../services/bookings.js'
+import { validateBooking, createBookingResponse, createBookingItem, getBooking, validateCancellation } from '../services/bookings.js'
 
 export const handler = async (event) => {
   try {
     const booking = JSON.parse(event.body)
+    const oldBooking = await getBooking(event.pathParameters.id)
 
     await validateUpdate(booking)
+    if (booking.startDate || booking.endDate) {
+      validateCancellation(oldBooking)
+    }
 
-    const updatedBooking = { ...await getBooking(event.pathParameters.id), ...booking }
-
-    console.log('updatedBooking ', updatedBooking)
+    const updatedBooking = { ...oldBooking, ...booking }
 
     await validateBooking({
       ...updatedBooking,

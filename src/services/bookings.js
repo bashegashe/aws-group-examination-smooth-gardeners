@@ -105,3 +105,11 @@ export async function getBooking(id) {
 
   return booking;
 }
+
+export function validateCancellation(booking) {
+  const daysBefore = dayjs(booking.startDate).subtract(1, 'd');
+
+  if (!dayjs().isBefore(daysBefore)) {
+    throw new Error('Booking cannot be cancelled less than 2 days before arrival');
+  }
+}
