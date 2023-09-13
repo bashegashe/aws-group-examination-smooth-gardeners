@@ -1,20 +1,25 @@
 import { db } from '../services/db.js'
-import validatePost from '../validations/postValidation.js'
+import { validateUpdate } from '../validations/postValidation.js'
 import { sendResponse } from '../responses/index.js'
-import { validateBooking, calculateBookingTotalRooms, createBookingResponse, createBookingItem } from '../services/bookings.js'
+import { validateBooking, createBookingResponse, createBookingItem, getBooking } from '../services/bookings.js'
 
 export const handler = async (event) => {
   try {
     const booking = JSON.parse(event.body)
 
-    await validatePost(booking)
+    await validateUpdate(booking)
+
+    const updatedBooking = { ...await getBooking(event.pathParameters.id), ...booking }
+
+    console.log('updatedBooking ', updatedBooking)
+
     await validateBooking({
-      ...booking,
+      ...updatedBooking,
       id: event.pathParameters.id
     })
 
     const bookingItem = {
-      ...createBookingItem(booking),
+      ...createBookingItem(updatedBooking),
       PK: `BOOKING#${event.pathParameters.id}`,
     }
 

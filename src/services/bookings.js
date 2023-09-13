@@ -91,3 +91,17 @@ export function createBookingItem(booking) {
     email
   };
 }
+
+export async function getBooking(id) {
+  const params = {
+    TableName: process.env.TABLE_NAME,
+    Key: {
+      PK: `BOOKING#${id}`,
+      SK: 'META'
+    }
+  };
+
+  const { Item: booking } = await db.get(params).promise();
+
+  return booking;
+}

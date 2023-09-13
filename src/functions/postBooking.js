@@ -1,5 +1,5 @@
 import { db } from '../services/db.js'
-import validatePost from '../validations/postValidation.js'
+import { validatePost } from '../validations/postValidation.js'
 import { sendResponse } from '../responses/index.js'
 import { validateBooking, createBookingResponse, createBookingItem } from '../services/bookings.js'
 
