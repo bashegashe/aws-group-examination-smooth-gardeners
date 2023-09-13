@@ -1,6 +1,7 @@
 import { db } from '../services/db.js'
 import { sendResponse } from '../responses/index.js'
 import dayjs from 'dayjs'
+import { createBookingResponse } from '../services/bookings.js'
 
 export const handler = async (event) => {
   try {
@@ -8,7 +9,7 @@ export const handler = async (event) => {
       TableName: process.env.TABLE_NAME,
       Key: {
         PK: `BOOKING#${event.pathParameters.id}`,
-        SK: 'BOOKINGS#META'
+        SK: 'META'
       }
     };
 
@@ -28,7 +29,7 @@ export const handler = async (event) => {
 
     return sendResponse(200, {
       success: true,
-      booking
+      booking: createBookingResponse(booking)
     })
   } catch (error) {
     let message = error?.details?.message || error?.message || 'Something went wrong'

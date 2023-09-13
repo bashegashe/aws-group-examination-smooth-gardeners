@@ -41,7 +41,7 @@ functions:
     handler: src/functions/updateBooking.handler
     events:
       - httpApi:
-          path: '/api/booking'
+          path: '/api/booking/{id}'
           method: PATCH
   deleteBooking:
     handler: src/functions/deleteBooking.handler
@@ -61,7 +61,9 @@ resources:
             AttributeType: S
           - AttributeName: SK
             AttributeType: S
-          - AttributeName: startDate
+          - AttributeName: GSI1PK
+            AttributeType: S
+          - AttributeName: GSI1SK
             AttributeType: S
         KeySchema:
           - AttributeName: PK
@@ -72,9 +74,9 @@ resources:
         GlobalSecondaryIndexes:
           - IndexName: GSI1
             KeySchema:
-              - AttributeName: SK
+              - AttributeName: GSI1PK
                 KeyType: HASH
-              - AttributeName: startDate
+              - AttributeName: GSI1SK
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL

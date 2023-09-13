@@ -1,35 +1,24 @@
 import { db } from '../services/db.js'
 import validatePost from '../validations/postValidation.js'
 import { sendResponse } from '../responses/index.js'
-import { validateBookingDates, calculateBookingTotalRooms, createBookingResponse } from '../services/bookings.js'
-import { nanoid } from 'nanoid'
+import { validateBooking, calculateBookingTotalRooms, createBookingResponse, createBookingItem } from '../services/bookings.js'
 
 export const handler = async (event) => {
   try {
     const booking = JSON.parse(event.body)
 
     await validatePost(booking)
+    await validateBooking({
+      startDate: booking.startDate,
+      endDate: booking.endDate,
+      roomsNeeded: calculateBookingTotalRooms(booking)
+    })
 
-    const { guests, rooms, startDate, endDate, name, email } = booking
-
-    const roomsNeeded = calculateBookingTotalRooms(booking)
-
-    await validateBookingDates({ startDate, endDate, roomsNeeded })
-
-    const item = {
-      PK: `BOOKING#${nanoid()}`,
-      SK: `BOOKINGS#META`,
-      guests,
-      rooms,
-      startDate,
-      endDate,
-      name,
-      email
-    }
+    const bookingItem = createBookingItem(booking)
 
     const params = {
       TableName: process.env.TABLE_NAME,
-      Item: item,
+      Item: bookingItem,
       ConditionExpression: 'attribute_not_exists(PK)',
     }
 
@@ -37,7 +26,7 @@ export const handler = async (event) => {
 
     return sendResponse(200, {
       success: true,
-      booking: createBookingResponse(item)
+      booking: createBookingResponse(bookingItem)
     })
   } catch (error) {
     const message = error?.details?.message || error?.message || 'Something went wrong'
