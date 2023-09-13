@@ -4,20 +4,21 @@ import dayjs from 'dayjs';
 import { nanoid } from 'nanoid';
 
 export async function validateBooking(newBooking) {
-  const { startDate, endDate, roomsNeeded } = newBooking;
+  const { startDate, endDate, roomsNeeded, id } = newBooking;
 
   const params = {
     TableName: process.env.TABLE_NAME,
     IndexName: 'GSI1',
     KeyConditionExpression: 'GSI1PK = :pk AND #startDate <= :end',
-    FilterExpression: 'endDate > :start',
+    FilterExpression: `endDate > :start ${id ? `AND PK <> :id` : ''}`,
     ExpressionAttributeNames: {
       '#startDate': 'GSI1SK'
     },
     ExpressionAttributeValues: {
       ":pk": "META",
       ":start": startDate,
-      ":end": endDate
+      ":end": endDate,
+      ":id": 'BOOKING#' + id
     }
   }
 
