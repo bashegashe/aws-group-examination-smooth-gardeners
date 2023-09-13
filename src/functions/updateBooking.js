@@ -9,9 +9,7 @@ export const handler = async (event) => {
 
     await validatePost(booking)
     await validateBooking({
-      startDate: booking.startDate,
-      endDate: booking.endDate,
-      roomsNeeded: calculateBookingTotalRooms(booking),
+      ...booking,
       id: event.pathParameters.id
     })
 

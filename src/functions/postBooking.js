@@ -1,18 +1,14 @@
 import { db } from '../services/db.js'
 import validatePost from '../validations/postValidation.js'
 import { sendResponse } from '../responses/index.js'
-import { validateBooking, calculateBookingTotalRooms, createBookingResponse, createBookingItem } from '../services/bookings.js'
+import { validateBooking, createBookingResponse, createBookingItem } from '../services/bookings.js'
 
 export const handler = async (event) => {
   try {
     const booking = JSON.parse(event.body)
 
     await validatePost(booking)
-    await validateBooking({
-      startDate: booking.startDate,
-      endDate: booking.endDate,
-      roomsNeeded: calculateBookingTotalRooms(booking)
-    })
+    await validateBooking(booking)
 
     const bookingItem = createBookingItem(booking)
 

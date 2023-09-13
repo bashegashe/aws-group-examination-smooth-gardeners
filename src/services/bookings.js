@@ -3,22 +3,24 @@ import { MAX_ROOMS, ROOMS } from '../misc/constants.js';
 import dayjs from 'dayjs';
 import { nanoid } from 'nanoid';
 
-export async function validateBooking(newBooking) {
-  const { startDate, endDate, roomsNeeded, id } = newBooking;
+export async function validateBooking(booking) {
+  if (validateRoomCapacity(booking)) {
+    throw new Error('Selected rooms cannot accommodate the number of guests.');
+  }
 
   const params = {
     TableName: process.env.TABLE_NAME,
     IndexName: 'GSI1',
     KeyConditionExpression: 'GSI1PK = :pk AND #startDate <= :end',
-    FilterExpression: `endDate > :start ${id ? `AND PK <> :id` : ''}`,
+    FilterExpression: `endDate > :start ${booking.id ? `AND PK <> :id` : ''}`,
     ExpressionAttributeNames: {
       '#startDate': 'GSI1SK'
     },
     ExpressionAttributeValues: {
       ":pk": "META",
-      ":start": startDate,
-      ":end": endDate,
-      ":id": 'BOOKING#' + id
+      ":start": booking.startDate,
+      ":end": booking.endDate,
+      ...(booking.id ? { ":id": 'BOOKING#' + booking.id } : {})
     }
   }
 
@@ -26,11 +28,18 @@ export async function validateBooking(newBooking) {
 
   const bookedRooms = intersectingBookings.reduce((acc, booking) => acc + calculateBookingTotalRooms(booking), 0);
 
-  if (bookedRooms + roomsNeeded > MAX_ROOMS) {
+  if (bookedRooms + calculateBookingTotalRooms(booking) > MAX_ROOMS) {
     throw new Error('Not enough rooms for the selected period!');
   }
 }
 
+function validateRoomCapacity(booking) {
+  return Object.keys(booking.rooms).reduce(
+    (acc, key) =>
+      acc + booking.rooms[key] * ROOMS[key.toUpperCase()].MAX_GUESTS,
+    0
+  ) < booking.guests;
+}
 
 export function calculateBookingTotalRooms(booking) {
   return Object.keys(booking.rooms).reduce(
