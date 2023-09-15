@@ -11,15 +11,15 @@ export async function validateBooking(booking) {
   const params = {
     TableName: process.env.TABLE_NAME,
     IndexName: 'GSI1',
-    KeyConditionExpression: 'GSI1PK = :pk AND #startDate <= :end',
-    FilterExpression: `endDate > :start ${booking.id ? `AND PK <> :id` : ''}`,
+    KeyConditionExpression: 'GSI1PK = :pk AND #checkIn <= :end',
+    FilterExpression: `checkOut > :start ${booking.id ? `AND PK <> :id` : ''}`,
     ExpressionAttributeNames: {
-      '#startDate': 'GSI1SK'
+      '#checkIn': 'GSI1SK'
     },
     ExpressionAttributeValues: {
       ":pk": "META",
-      ":start": booking.startDate,
-      ":end": booking.endDate,
+      ":start": booking.checkIn,
+      ":end": booking.checkOut,
       ...(booking.id ? { ":id": 'BOOKING#' + booking.id } : {})
     }
   }
@@ -49,7 +49,7 @@ export function calculateBookingTotalRooms(booking) {
 }
 
 export function calculateBookingTotalPrice(booking) {
-  const numberOfDays = dayjs(booking.endDate).diff(booking.startDate, 'd');
+  const numberOfDays = dayjs(booking.checkOut).diff(booking.checkIn, 'd');
 
   return Object.keys(booking.rooms).reduce(
     (acc, key) =>
@@ -59,7 +59,7 @@ export function calculateBookingTotalPrice(booking) {
 }
 
 export function createBookingResponse(booking) {
-  const { guests, startDate, endDate, name, email } = booking;
+  const { guests, checkIn, checkOut, name, email } = booking;
 
   return {
     id: booking.PK.replace('BOOKING#', ''),
@@ -68,25 +68,25 @@ export function createBookingResponse(booking) {
     rooms: calculateBookingTotalRooms(booking),
     guests,
     dates: {
-      checkIn: startDate,
-      checkOut: endDate
+      checkIn: checkIn,
+      checkOut: checkOut
     },
     totalPrice: calculateBookingTotalPrice(booking)
   }
 }
 
 export function createBookingItem(booking) {
-  const { guests, rooms, startDate, endDate, name, email } = booking;
+  const { guests, rooms, checkIn, checkOut, name, email } = booking;
 
   return {
     PK: `BOOKING#${nanoid()}`,
     SK: `META`,
     GSI1PK: `META`,
-    GSI1SK: startDate,
+    GSI1SK: checkIn,
     guests,
     rooms,
-    startDate,
-    endDate,
+    checkIn,
+    checkOut,
     name,
     email
   };
@@ -107,7 +107,7 @@ export async function getBooking(id) {
 }
 
 export function validateCancellation(booking) {
-  const daysBefore = dayjs(booking.startDate).subtract(1, 'd');
+  const daysBefore = dayjs(booking.checkIn).subtract(1, 'd');
 
   if (!dayjs().isBefore(daysBefore)) {
     throw new Error('Booking cannot be cancelled less than 2 days before arrival');

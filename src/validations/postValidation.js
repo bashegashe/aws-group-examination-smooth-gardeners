@@ -10,30 +10,30 @@ const roomSchema = Joi.object({
 const postSchema = Joi.object({
   guests: Joi.number().integer().min(1).required(),
   rooms: roomSchema.required(),
-  startDate: Joi.date()
+  checkIn: Joi.date()
     .iso()
     .min(dayjs().format('YYYY-MM-DD'))
     .required(),
-  endDate: Joi.date()
+  checkOut: Joi.date()
     .iso()
-    .greater(Joi.ref('startDate'))
+    .greater(Joi.ref('checkIn'))
     .required(),
   name: Joi.string().required(),
   email: Joi.string().email().required(),
 }).required()
-  .and('startDate', 'endDate')
+  .and('checkIn', 'checkOut')
   .with('guests', 'rooms');
 
 const updateSchema = Joi.object({
   guests: Joi.number().integer().min(1),
   rooms: roomSchema,
-  startDate: Joi.date()
+  checkIn: Joi.date()
     .iso()
     .min(dayjs().format('YYYY-MM-DD')),
-  endDate: Joi.date()
+  checkOut: Joi.date()
     .iso()
-    .greater(Joi.ref('startDate'))
-}).and('startDate', 'endDate')
+    .greater(Joi.ref('checkIn'))
+}).and('checkIn', 'checkOut')
 
 export function validatePost(data) {
   return postSchema.validateAsync(data);

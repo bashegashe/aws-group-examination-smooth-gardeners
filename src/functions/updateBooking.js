@@ -9,7 +9,7 @@ export const handler = async (event) => {
     const oldBooking = await getBooking(event.pathParameters.id)
 
     await validateUpdate(booking)
-    if (booking.startDate || booking.endDate) {
+    if (booking.checkIn || booking.checkOut) {
       validateCancellation(oldBooking)
     }
 
